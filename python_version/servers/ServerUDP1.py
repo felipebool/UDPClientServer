@@ -9,9 +9,15 @@ import ProtocolMessages
 
 class ServerUDP (SocketServer.BaseRequestHandler):
     changeReceived = False
+    pointX = 0
+    pointY = 0
+
+    def __init__(self):
+        self.img = Image.new('RGB', (255, 255), "black")
+        self.pixels = self.img.load()
 
     def handle(self):
-        data = self.request[0].strip()
+        self.data = self.request[0].strip()
         socket = self.request[1]
 
         self.manageMessages(data, socket)
@@ -39,7 +45,16 @@ class ServerUDP (SocketServer.BaseRequestHandler):
             ServerUDP.changeReceived = False
 
     def commitDataModification(self):
-            print "Entrei no commitDataModification"
+        # A mensagem COMMIT padrão tem valor 5. Quando um servidor recebe uma
+        # mensagem maior do que 5, ele sabe que acabou de receber um commit.
+        # A diferença entre o valor da mensagem recebida e o valor padrão para
+        # a mensagem commit representa a cor do pixel que será alterado por
+        # aquele cliente. Desta forma, o valor da cor pega carona com a mensagem
+        # COMMIT.
+        ServerUDP.pixels[ServerUDP.pointX, ServerUDP.pointY] = (ServerUDP.pointX, ServerUDP.pointY, this.data - ProtocolMessages.Messages.COMMIT)
+        ServerUDP.pointX = ServerUDP.pointX + 1
+        ServerUDP.pointY = ServerUDP.pointY + 1
+        print "Entrei no commitDataModification"
 
 if __name__ == "__main__":
     HOST, PORT = "localhost", 9999
