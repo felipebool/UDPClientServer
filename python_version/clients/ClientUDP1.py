@@ -11,9 +11,13 @@ class ClientUDP():
     hostname = "localhost"
     delay = 0
 
+    okFromServer1 = False
+    okFromServer2 = False
+    okFromServer3 = False
+
     # Construtor da classe, inicializa atributo delay. O delay determina o
-    # tempo que o cliente irá esperar para enviar a a mensagem commit para
-    # o servidor, o valor deste atributo varia de 0 a 5 segundos.
+    # tempo que o cliente irá esperar para enviar a mensagem commit para o
+    # servidor, o valor deste atributo varia de 0 a 5 segundos.
     def __init__(self):
         self.delay = float(random.randint(0,5))
 
