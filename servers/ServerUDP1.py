@@ -61,10 +61,11 @@ class ServerUDP(SocketServer.BaseRequestHandler):
     # aquele cliente. Desta forma, o valor da cor pega carona com a mensagem
     # COMMIT.
     def commitDataModification(self):
-        ler do arquivo
-        armazenar numa variavel
-        somar 1
-        reescrever no arquivo
+        valorAtual = int(ServerUDP.importantData.read(1))
+        novoValor = valorAtual + 1
+        ServerUDP.seek(0)
+        ServerUDP.importantData.write(novoValor)
+        ServerUDP.truncate()
         print "commitDataModification"
 
 if __name__ == "__main__":
