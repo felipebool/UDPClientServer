@@ -1,0 +1,67 @@
+<h1>LINGUAGEM ESCOLHIDA</h1>
+A ideia inicial era fazer o trabalho utilizando duas linguagens, Python e Java, desta forma
+conseguiríamos simular um cenário interessante, com um servidor python respondendo a requisições
+de clientes Java, que poderiam estar rodando em qualquer sistema operacional, até mesmo no Android.
+
+Entretanto, tivemos que tolher nossa escolha já no início. Foi bastante complicado nos reunirmos
+para fazer o trabalho, com os trabalhos de outras disciplinas e o estágio nos tomando muito tempo,
+acabamos por definir que cliente e servidor seriam feitos em Python, isto foi definido em um dos
+primeiros, e poucos, encontros que conseguimos fazer.
+
+<h1>ALGUMAS DEFINIÇOES</h1>
+A primeira questão que surgiu foi se utilizaríamos o protocolo TCP ou UDP. Isto se resolveu rapidamente,
+novamente em um dos poucos encontros que tivemos. Escolhemos o UDP. Como, de acordo com a especificação,
+na versão simplificada do protocolo 2PC não ocorre perda de mensagem e o handshake da comunicação é bem
+definido, o UDP foi escolhido.
+
+Um outro ponto que definimos e tivemos que mudar o foco dada a falta de tempo, foi o dado a ser modificado
+pelos clientes. A ideia inicial era que o dado fosse uma imagem. Cada servidor enviaria a sua mensagem
+COMMIT com um valor maior do que o definido (o valor da mensagem COMMIT no nosso protocolo é "5").
+A diferença entre o valor de COMMIT e o recebido pelo servidor, seria a cor do pixel que seria pintado
+na imagem. Desta forma, teríamos um dado interessante para avaliar e, quem sabe, visualmente agradável.
+Como o tempo foi recurso escasso, novamente tivemos que tolher nossos planos e mudamos de ideia. Nosso
+dado se transformou num arquivo texto, inicialmente com um número '0' dentro, que seria lido, acrescido
+de 1, e reescrito no arquivo, sobreescrevendo o valor anterior.
+
+Tendo definido a linguagem e decidido alguns detalhes, partimos para a codificação. Em ambos, servidor
+e cliente, resolvemos que o melhor seria desenvolver tudo utilizando orientação a objetos, assim o fizemos.
+
+<h1>CLIENTE</h1>
+O cliente (ClientUDP.py) foi feito do zero. Adicionamos ao construtor da classe
+a definição do delay que seria utilizado para "dar chance" aos outros clientes de se comunicar com os
+servidores, além de tornar a coisa mais visual durante o debug. No construtor também inicializamos as
+portas pelas quais o cliente se comunica com cada um dos servidores.
+
+Ainda no cliente, temos 4 métodos: sendMessage, manageMessages, checkOkAnswers e endCommunication.
+O sendMessage é usado para enviar a mensagem de CHANGE. O manageMessages cuida da definição das ações
+a serem tomadas sobre as respostas enviadas do servidor para o cliente, ao receber OK, altera um atributo
+da classe que armazena a quantidade de mensagens OK recebidas, ao receber NOK, envia ABORT para todos
+os servidores. O checkOkAnswers confere se foram recebidas mensagens OK de todos os servidores, em caso
+positivo, envia COMMIT para o servidor. Por último, o endCommunication. Nosso programa é testado em um
+loop grande, com todos os clientes fazendo várias tentativas de comunicação, como os servidores continuam
+rodando após a última mensagem, foi criada uma mensagem especial chamada END_COMMUNICATION que é enviada
+assim que o loop do cliente termina. Assim os servidores podem finalizar a execução e fechar os arquivos
+com os dados modificados.
+
+<h1>SERVIDOR</h1>
+O desenvolvimento do servidor foi um pouco diferente. Nós estendemos BaseRequestHandler do módulo SocketServer
+do Python. Se fôssemos utilizar todas as possibilidades da classe talvez acabássemos por falhar no trabalho,
+pois a implementação real seria mínima. O que utilizamos da super classe estendida foi basicamente o método
+handle, que é o loop infinito do servidor. Para implementar o protocolo no lado do servidor, implementamos
+dois métodos (manageMessages e commitDataModification) e utilizamos quatro atributos (changeReceived,
+endCommunication, messageReceived e importantData). O método manageMessages funciona de maneira muito similar
+ao manageMessages do cliente, ele serve como um gateway para as mensagens que chegam dos clientes, entregando
+a resposta devida para a mensagem de entrada. O commitDataModification faz exatamente o que o nome diz, commita
+o dado, ou seja, incrementa o valor armazenado no arquivo. Os atributos criados foram utilizados para implementar
+o protocolo na parte do servidor. O changeReceived é uma flag (um booleano) que sinaliza quando o servidor
+recebeu uma mensagem CHANGE. O endCommunication é um inteiro que é incrementado sempre que recebe uma mensagem
+END_COMMUNICATION dos clientes, quando receber de todos os clientes o servidor finaliza a execução. MessageReceived
+é utilizado para sinalizar o momento de criar o arquivo com o dado e o importantData é nosso arquivo com os
+dados importantes que precisam ser mantidos consistentemente entre os servidores.
+
+<h1>CONCLUSÃO</h1>
+O desafio do trabalho foi extremamente interessante e as possibilidades eram muitas, no entanto, acabamos tendo
+problemas com a falta de tempo. Foi um desafio interessante. Toda aquela dificuldade enfrentada no trabalho
+de raw socket de Redes 1 foi substituída por uma facilidade estranha do alto nível deste trabalho. O Python
+realmente esconde do desenvolvedor muito da complexidade envolvida na comunicação, o que é muito interessante,
+uma vez que, desta forma, o programador pode se ater a outros aspectos mais importantes da aplicação.

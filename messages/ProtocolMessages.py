@@ -6,3 +6,4 @@ class Messages(object):
     ABORT = "3"
     CHANGE = "4"
     COMMIT = "5"
+    END_COMMUNICATION = "6"
