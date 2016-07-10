@@ -1,4 +1,4 @@
-# trabalho_redes2
+# UDPClientServer
 
 ## Referências
 - https://docs.python.org/2/library/socketserver.html
